@@ -1,31 +1,118 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Controle - ADTEC</title>
-    
-    <link rel="stylesheet" href="dashboard.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel de Controle - ADTEC</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+    <link rel="icon" href="images/logoADTEC.png" type="image/png">
+  </head>
 <body>
-    <div class="container">
-        <h1 id="welcome-message">Bem-vindo(a)!</h1>
-        <p>Este é o seu painel de controle. Em breve, aqui estarão as funcionalidades:</p>
-        <ul>
-            <li>Controle de retirada e devolução de chaves</li>
-            <li>Cadastro de novos imóveis</li>
-            <li>Relatórios e buscas</li>
-        </ul>
-        <a href="index.html" class="logout">Sair</a>
-    </div>
 
-    <script>
-        const usuarioLogado = localStorage.getItem('usuarioLogado');
-        if (usuarioLogado) {
-            document.getElementById('welcome-message').textContent = `Bem-vindo(a), ${usuarioLogado}!`;
-        }
-    </script>
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <img src="img/logoADTEC.png" alt="ADTEC Logo" class="header-logo-symbol"> <span class="header-site-name">ADTEC Chaves</span>
+    </div>
+    <nav class="dashboard-nav">
+      <span>Olá, Gilberto!</span>
+      <a href="index.html" class="logout-link">Sair</a>
+    </nav>
+  </header>
+
+  <main class="container-fluid mt-4">
+    <div class="dashboard-container">
+      <h1 class="dashboard-title">Controle de Chaves</h1>
+
+      <div class="row g-3 align-items-center mb-4 action-bar">
+        <div class="col-md-6">
+          <input type="text" class="form-control" placeholder="Buscar por endereço, código ou corretor...">
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="cadastrar_imovel.html" class="btn btn-primary btn-add-new">+ Adicionar Novo Imóvel</a>
+        </div>
+      </div>
+
+      <div class="filters mb-3">
+        <button id="btn-todas" class="btn btn-filter active">Todas (<span id="count-todas">0</span>)</button>
+        <button id="btn-disponiveis" class="btn btn-filter">Disponíveis (<span id="count-disponiveis">0</span>)</button>
+        <button id="btn-emprestadas" class="btn btn-filter">Emprestadas (<span id="count-emprestadas">0</span>)</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col">Imóvel</th>
+              <th scope="col">Em Posse de</th>
+              <th scope="col">Data da Retirada</th>
+              <th scope="col" class="text-end">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-chaves-corpo">
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  
+  <div class="modal fade" id="retiradaModal" tabindex="-1" aria-labelledby="retiradaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="retiradaModalLabel">Registrar Retirada de Chave</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="imovel-info" class="form-label">Imóvel:</label>
+              <input type="text" class="form-control" id="imovel-info" value="Preencher com JS" abled>
+            </div>
+            <div class="mb-3">
+              <label for="corretor-nome" class="form-label">Retirado por (Corretor):</label>
+              <input type="text" class="form-control" id="corretor-nome" placeholder="Digite o nome do responsável">
+            </div>
+            <div class="mb-3">
+              <label for="retirada-data" class="form-label">Data e Hora da Retirada:</label>
+              <input type="datetime-local" class="form-control" id="retirada-data">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btn-confirmar-retirada">Confirmar Retirada</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="excluirModal" tabindex="-1" aria-labelledby="excluirModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="excluirModalLabel">Confirmar Exclusão</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Para excluir este imóvel, por favor, insira a senha de administrador.</p>
+          <div class="mb-3">
+            <label for="senha-exclusao" class="form-label">Senha:</label>
+            <input type="password" class="form-control" id="senha-exclusao" required>
+            <div id="erro-senha" class="text-danger mt-2 d-none">Senha incorreta.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="btn-confirmar-exclusao">Excluir Imóvel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+
 </body>
 </html>

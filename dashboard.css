@@ -1,40 +1,96 @@
+/* Estilos Base (pode copiar do seu style.css se preferir) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #e6f0fa;
-    color: #333;
-    margin: 0;
-    padding: 40px;
+  font-family: 'Poppins', Arial, sans-serif;
+  background-color: #f0f2f5; /* Fundo cinza claro para a área de conteúdo */
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+/* Estilos para o Painel de Controle (Dashboard) */
+
+.dashboard-header {
+  background-color: #ffffff; /* Cabeçalho branco */
+  padding: 10px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-bottom: 1px solid #dee2e6;
 }
 
-h1 {
-    color: #3a7bd5;
+.dashboard-header .logo-area {
+  text-decoration: none;
 }
 
-p {
-    font-size: 1.1em;
-    line-height: 1.6;
+.dashboard-header .header-logo-symbol {
+  height: 40px;
 }
 
-a.logout {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #dc3545;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background-color 0.3s;
+.dashboard-header .header-site-name {
+  color: #333; /* Texto escuro para o nome */
+  font-size: 1.5rem;
+  margin-left: 10px; /* Espaço entre o logo e o nome */
 }
 
-a.logout:hover {
-    background-color: #c82333;
+.dashboard-header .logout-link {
+  color: #0d6efd; /* Azul do Bootstrap */
+  text-decoration: none;
+  margin-left: 15px;
+  font-weight: 500;
+}
+
+.dashboard-container {
+  background-color: #ffffff;
+  padding: 30px;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.dashboard-title {
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.action-bar .form-control {
+  max-width: 400px;
+}
+
+.btn-add-new {
+  font-weight: 500;
+}
+
+.filters .btn-filter {
+  color: #6c757d;
+  background-color: transparent;
+  border: 1px solid #dee2e6;
+  font-weight: 500;
+  margin-right: 10px;
+}
+
+.filters .btn-filter.active,
+.filters .btn-filter:hover {
+  color: #fff;
+  background-color: #0d6efd; /* Azul primário do Bootstrap */
+  border-color: #0d6efd;
+}
+
+.status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px
+}
+
+.status-disponivel {
+  background-color: #198754; /* Verde */
+}
+
+.status-emprestada {
+  background-color: #dc3545; /* Vermelho */
 }
