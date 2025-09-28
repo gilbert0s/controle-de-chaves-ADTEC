@@ -3,32 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Relatórios - ADTEC</title>
+  <title>Relatório de Movimentações - ADTEC</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css">
   <link rel="icon" href="img/logoADTEC.png" type="image/png">
 
   <style>
+    /* Estilos para tela comum */
+    .report-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .report-header img {
+      height: 50px;
+      margin-right: 15px;
+    }
+    .report-title {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .report-meta {
+      margin-top: 5px;
+      color: #666;
+    }
+
+    table.report-table tbody tr {
+      line-height: 1.6;
+    }
+    table.report-table td {
+      padding: 12px 8px;
+      vertical-align: top;
+    }
+
     @media print {
       .no-print {
         display: none !important;
       }
+      .report-header,
+      .report-title,
+      .report-meta,
+      .report-table {
+        width: 100%;
+      }
       body {
-        margin-top: 0;
+        margin: 20mm; /* ajuste das margens de impressão */
       }
     }
   </style>
 </head>
-<body class="dashboard-body">
+<body>
 
   <div id="navbar-container" class="no-print"></div>
 
   <main class="container-fluid mt-4">
     <div class="dashboard-container">
-      <h1 class="dashboard-title">Histórico de Movimentação</h1>
 
-      <!-- Filtros -->
-      <div class="row g-3 align-items-center mb-4 no-print">
+      <!-- Cabeçalho do relatório -->
+      <div class="report-header no-print">
+        <img src="img/logoADTEC.png" alt="Logo ADTEC">
+        <div>
+          <div class="report-title">Relatório de Movimentações</div>
+          <div class="report-meta">Gerado em: <span id="report-data-hora"></span></div>
+        </div>
+      </div>
+
+      <!-- Filtro visível -->
+      <div class="row mb-3 no-print">
         <div class="col-md-6">
           <input type="text" class="form-control" id="input-busca-historico" placeholder="Filtrar por imóvel, código ou responsável...">
         </div>
@@ -37,9 +78,12 @@
         </div>
       </div>
 
-      <!-- Tabela -->
+      <!-- Filtros aplicados (exibição para impressão também) -->
+      <div class="mb-3" id="info-filtro" style="font-style: italic; color: #555;"></div>
+
+      <!-- Tabela de dados -->
       <div class="table-responsive">
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped table-bordered report-table">
           <thead class="table-light">
             <tr>
               <th>Data</th>
@@ -49,10 +93,11 @@
             </tr>
           </thead>
           <tbody id="tabela-historico-corpo">
-            <!-- JS vai preencher -->
+            <!-- preenchido pelo JS -->
           </tbody>
         </table>
       </div>
+
     </div>
   </main>
 
@@ -63,9 +108,19 @@
         .then(res => res.text())
         .then(html => document.getElementById("navbar-container").innerHTML = html);
 
+      // Mostrar data/hora atual no relatório
+      const dataHoraElem = document.getElementById("report-data-hora");
+      const agora = new Date();
+      const formata = novo => {
+        const pad = n => n.toString().padStart(2, '0');
+        return `${pad(novo.getDate())}/${pad(novo.getMonth()+1)}/${novo.getFullYear()} ${pad(novo.getHours())}:${pad(novo.getMinutes())}`;
+      };
+      dataHoraElem.textContent = formata(agora);
+
       const corpoTabela = document.getElementById("tabela-historico-corpo");
       const inputFiltro = document.getElementById("input-busca-historico");
       const btnImprimir = document.getElementById("btnImprimir");
+      const infoFiltro = document.getElementById("info-filtro");
 
       function carregarHistorico(filtro = "") {
         const historico = JSON.parse(localStorage.getItem("historicoChaves")) || [];
@@ -81,34 +136,38 @@
 
         if (filtrado.length === 0) {
           corpoTabela.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Nenhum registro encontrado.</td></tr>`;
-          return;
+        } else {
+          filtrado.forEach(item => {
+            const linha = document.createElement("tr");
+            linha.innerHTML = `
+              <td>${item.data}</td>
+              <td>${item.imovelEndereco} - Cód: ${item.imovelCodigo}</td>
+              <td class="${item.acao === 'Retirada' ? 'text-danger' : 'text-success'} fw-bold">${item.acao}</td>
+              <td>${item.responsavel}</td>
+            `;
+            corpoTabela.appendChild(linha);
+          });
         }
 
-        filtrado.forEach(item => {
-          const linha = document.createElement("tr");
-          linha.innerHTML = `
-            <td>${item.data}</td>
-            <td>${item.imovelEndereco} - Cód: ${item.imovelCodigo}</td>
-            <td class="${item.acao === 'Retirada' ? 'text-danger' : 'text-success'} fw-bold">${item.acao}</td>
-            <td>${item.responsavel}</td>
-          `;
-          corpoTabela.appendChild(linha);
-        });
+        // Mostrar info de filtro aplicado
+        if (filtro && filtro.trim() !== "") {
+          infoFiltro.textContent = `Filtrando por: "${filtro.trim()}"`;
+        } else {
+          infoFiltro.textContent = "";
+        }
       }
 
-      // Filtro ao digitar
       inputFiltro.addEventListener("input", () => {
         carregarHistorico(inputFiltro.value);
       });
 
-      // Impressão
       btnImprimir.addEventListener("click", () => {
         window.print();
       });
 
-      // Carregar dados inicialmente
       carregarHistorico();
     });
   </script>
+
 </body>
 </html>
