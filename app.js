@@ -1,5 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // Função para registrar uma entrada no histórico
+    function registrarHistorico(imovel, acao, responsavel = '-') {
+        const historico = JSON.parse(localStorage.getItem('historicoChaves')) || [];
+        const novaEntrada = {
+            id: Date.now(),
+            imovelId: imovel.id,
+            imovelEndereco: imovel.endereco,
+            imovelCodigo: imovel.codigo,
+            acao: acao, // 'Retirada' ou 'Devolução'
+            responsavel: responsavel,
+            data: new Date().toLocaleString('pt-BR')
+        };
+        historico.unshift(novaEntrada); // Adiciona no início para o mais recente aparecer primeiro
+        localStorage.setItem('historicoChaves', JSON.stringify(historico));
+    }
+
     // --- LÓGICA PARA A PÁGINA DE CADASTRO DE IMÓVEL ---
     const formCadastroImovel = document.getElementById('form-cadastro-imovel');
     if (formCadastroImovel) {
@@ -7,18 +23,15 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             const codigo = document.getElementById('input-codigo').value.trim();
             const endereco = document.getElementById('input-endereco').value.trim();
-            
             if (!endereco || !codigo) {
                 alert('Por favor, preencha pelo menos o endereço e o código do imóvel.');
                 return;
             }
-
             const imoveis = JSON.parse(localStorage.getItem('imoveis')) || [];
             if (imoveis.some(imovel => imovel.codigo === codigo)) {
                 alert('Erro: Já existe um imóvel cadastrado com este código.');
                 return;
             }
-
             const novoImovel = {
                 id: Date.now(),
                 endereco: endereco,
@@ -30,9 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 status: 'Disponível',
                 emPosseDe: '-',
                 dataRetirada: '-',
-                retiradoPor: {} // Objeto para guardar os dados da pessoa
+                retiradoPor: {}
             };
-
             imoveis.push(novoImovel);
             localStorage.setItem('imoveis', JSON.stringify(imoveis));
             alert('Imóvel cadastrado com sucesso!');
@@ -41,15 +53,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- LÓGICA PARA A PÁGINA DO DASHBOARD ---
-    const corpoTabela = document.getElementById('tabela-chaves-corpo');
-    if (corpoTabela) {
+    const corpoTabelaDashboard = document.getElementById('tabela-chaves-corpo');
+    if (corpoTabelaDashboard) {
         let idImovelSelecionado = null;
         
-        const retiradaModalEl = document.getElementById('retiradaModal');
-        const retiradaModal = retiradaModalEl ? new bootstrap.Modal(retiradaModalEl) : null;
-        const excluirModalEl = document.getElementById('excluirModal');
-        const excluirModal = excluirModalEl ? new bootstrap.Modal(excluirModalEl) : null;
-
+        const retiradaModal = new bootstrap.Modal(document.getElementById('retiradaModal'));
+        const excluirModal = new bootstrap.Modal(document.getElementById('excluirModal'));
         const btnConfirmarExclusao = document.getElementById('btn-confirmar-exclusao');
         const inputUsuarioExclusao = document.getElementById('usuario-exclusao');
         const inputSenhaExclusao = document.getElementById('senha-exclusao');
@@ -65,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function carregarImoveis(filtroStatus = 'Todas', termoBusca = '') {
             const imoveis = JSON.parse(localStorage.getItem('imoveis')) || [];
-            corpoTabela.innerHTML = ''; 
+            corpoTabelaDashboard.innerHTML = ''; 
 
             document.getElementById('btn-todas').innerText = `Todas (${imoveis.length})`;
             document.getElementById('btn-disponiveis').innerText = `Disponíveis (${imoveis.filter(im => im.status === 'Disponível').length})`;
@@ -108,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                       </button>
                     </td>
                 `;
-                corpoTabela.appendChild(novaLinha);
+                corpoTabelaDashboard.appendChild(novaLinha);
             });
         }
 
@@ -129,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // FUNÇÃO ATUALIZADA
         function confirmarRetirada() {
             const nome = document.getElementById('retirada-nome').value.trim();
             if (!nome) {
@@ -145,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 imovel.emPosseDe = nome;
                 imovel.dataRetirada = new Date().toLocaleString('pt-BR');
                 
-                // Salva todos os dados da pessoa em um objeto separado
                 imovel.retiradoPor = {
                     nome: nome,
                     cpf: document.getElementById('retirada-cpf').value.trim(),
@@ -154,13 +161,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 
                 localStorage.setItem('imoveis', JSON.stringify(imoveis));
+                
+                // >>> REGISTRA A RETIRADA NO HISTÓRICO <<<
+                registrarHistorico(imovel, 'Retirada', nome);
+
                 retiradaModal.hide();
                 document.getElementById('form-retirada').reset();
                 carregarImoveis(document.querySelector('.filters .active').dataset.filter, inputBusca.value);
             }
         }
 
-        corpoTabela.addEventListener('click', function(event) {
+        corpoTabelaDashboard.addEventListener('click', function(event) {
             let imoveis = JSON.parse(localStorage.getItem('imoveis')) || [];
             
             const btnExcluir = event.target.closest('.btn-excluir');
@@ -183,11 +194,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     retiradaModal.show();
                 } else if (imovel) {
                     if (confirm(`Confirmar a devolução da chave do imóvel: ${imovel.endereco}?`)) {
+                        const responsavelAnterior = imovel.emPosseDe;
                         imovel.status = 'Disponível';
                         imovel.emPosseDe = '-';
                         imovel.dataRetirada = '-';
-                        imovel.retiradoPor = {}; // Limpa os dados da pessoa na devolução
+                        imovel.retiradoPor = {};
                         localStorage.setItem('imoveis', JSON.stringify(imoveis));
+                        
+                        // >>> REGISTRA A DEVOLUÇÃO NO HISTÓRICO <<<
+                        registrarHistorico(imovel, 'Devolução', responsavelAnterior);
+                        
                         carregarImoveis(document.querySelector('.filters .active').dataset.filter, inputBusca.value);
                     }
                 }
@@ -218,4 +234,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
         carregarImoveis();
     }
+
+    // --- LÓGICA PARA A PÁGINA DE RELATÓRIOS ---
+    const corpoTabelaHistorico = document.getElementById('tabela-historico-corpo');
+    if (corpoTabelaHistorico) {
+        const inputBuscaHistorico = document.getElementById('input-busca-historico');
+
+        function carregarHistorico(termoBusca = '') {
+            const historico = JSON.parse(localStorage.getItem('historicoChaves')) || [];
+            corpoTabelaHistorico.innerHTML = '';
+
+            const termo = termoBusca.toLowerCase().trim();
+            let historicoFiltrado = historico;
+
+            if (termo) {
+                historicoFiltrado = historico.filter(entrada => 
+                    entrada.imovelEndereco.toLowerCase().includes(termo) ||
+                    entrada.imovelCodigo.toLowerCase().includes(termo)
+                );
+            }
+
+            if (historicoFiltrado.length === 0) {
+                corpoTabelaHistorico.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Nenhum registro encontrado.</td></tr>`;
+                return;
+            }
+
+            historicoFiltrado.forEach(function(entrada) {
+                const novaLinha = document.createElement('tr');
+                const acaoClass = entrada.acao === 'Retirada' ? 'text-danger' : 'text-success';
+
+                novaLinha.innerHTML = `
+                    <td>${entrada.data}</td>
+                    <td>
+                      <div class="fw-bold">${entrada.imovelEndereco}</div>
+                      <div class="text-muted small">Cód: ${entrada.imovelCodigo}</div>
+                    </td>
+                    <td class="fw-bold ${acaoClass}">${entrada.acao}</td>
+                    <td>${entrada.responsavel}</td>
+                `;
+                corpoTabelaHistorico.appendChild(novaLinha);
+            });
+        }
+
+        inputBuscaHistorico.addEventListener('input', function() {
+            carregarHistorico(this.value);
+        });
+
+        carregarHistorico();
+    }
 });
+
