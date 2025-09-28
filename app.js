@@ -282,5 +282,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         carregarHistorico();
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const filtroTempo = document.getElementById("filtroTempo");
+        const btnImprimir = document.getElementById("btnImprimir");
+
+        btnImprimir.addEventListener("click", () => {
+            const filtro = filtroTempo.value;
+
+            // Aqui você aplicaria o filtro nos dados antes de imprimir
+            // Exemplo: carregar dados filtrados de acordo com "filtro"
+
+            // Para este exemplo simples, apenas imprime a página com os dados atuais
+            window.print();
+        });
+    });
 });
 
+
+document.addEventListener("DOMContentLoaded", function() {
+    fetch("navbar.html")
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("navbar-container").innerHTML = data;
+        })
+        .catch(error => console.error("Erro ao carregar navbar:", error));
+});

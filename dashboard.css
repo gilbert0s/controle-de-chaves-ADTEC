@@ -94,3 +94,114 @@ body {
 .status-emprestada {
   background-color: #dc3545; /* Vermelho */
 }
+
+/* Navbar fixa */
+.navbar {
+  background-color: #1e1e2f;
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar li {
+  margin-right: 20px;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.navbar a:hover {
+  color: #00c3ff;
+}
+
+/* Espaço para não sobrepor o conteúdo */
+body {
+  margin-top: 60px; 
+}
+
+.filtros-relatorio {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filtros-relatorio select,
+.filtros-relatorio button {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.filtros-relatorio button {
+  background-color: #1e1e2f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filtros-relatorio button:hover {
+  background-color: #00c3ff;
+  color: black;
+}
+/* Navbar fixa */
+.navbar {
+  background-color: #1e1e2f;
+  padding: 10px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-logo img {
+  height: 40px; /* ajuste o tamanho da logo */
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  margin-left: 20px;
+}
+
+.navbar-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.navbar-links a:hover {
+  color: #00c3ff;
+}
+
+/* Espaço para não sobrepor o conteúdo */
+body {
+  margin-top: 60px;
+}
+
