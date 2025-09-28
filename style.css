@@ -251,3 +251,29 @@ body {
 body {
   margin-top: 60px;
 }
+/* Melhor legibilidade nas tabelas */
+table.table tbody tr {
+  line-height: 1.6; /* Aumenta espaçamento vertical */
+  font-size: 15px;
+}
+
+/* Espaço interno entre células */
+table.table td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  vertical-align: middle;
+}
+
+/* Espaçamento maior abaixo dos dados internos */
+table.table td div {
+  margin-bottom: 2px;
+}
+
+/* Linhas de status e código mais destacadas */
+table.table td .fw-bold {
+  font-size: 16px;
+}
+
+table.table td .text-muted.small {
+  font-size: 13px;
+}
