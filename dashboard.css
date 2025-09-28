@@ -159,20 +159,6 @@ body {
   background-color: #00c3ff;
   color: black;
 }
-/* Navbar fixa */
-.navbar {
-  background-color: #1e1e2f;
-  padding: 10px 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
 .navbar-logo img {
   height: 40px; /* ajuste o tamanho da logo */
